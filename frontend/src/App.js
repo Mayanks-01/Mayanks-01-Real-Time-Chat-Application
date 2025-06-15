@@ -6,7 +6,7 @@ const WEBSOCKET_URL = process.env.NODE_ENV === 'production'
   ? 'wss://real-time-chat-application-39bm.onrender.com' // Replace xxxx with your actual Render URL
   : 'ws://localhost:5000';
 
-  console.log('WebSocket URL:', WEBSOCKET_URL);
+console.log('WebSocket URL:', WEBSOCKET_URL);
 
 function App() {
   // State management
@@ -15,10 +15,12 @@ function App() {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [isConnected, setIsConnected] = useState(false);
+  const [isConnecting, setIsConnecting] = useState(false);
   
   // WebSocket reference
   const ws = useRef(null);
   const messagesEndRef = useRef(null);
+  const pendingUsername = useRef(null); // Store username until connection is ready
 
   // Scroll to bottom when new messages arrive
   const scrollToBottom = () => {
@@ -30,12 +32,27 @@ function App() {
   }, [messages]);
 
   // Connect to WebSocket server
-  const connectWebSocket = () => {
-   ws.current = new WebSocket(WEBSOCKET_URL);
+  const connectWebSocket = (usernameToJoin) => {
+    setIsConnecting(true);
+    pendingUsername.current = usernameToJoin;
+    
+    ws.current = new WebSocket(WEBSOCKET_URL);
     
     ws.current.onopen = () => {
       console.log('✅ Connected to server');
       setIsConnected(true);
+      setIsConnecting(false);
+      
+      // Now send the join message
+      if (pendingUsername.current) {
+        console.log('Sending join message for:', pendingUsername.current);
+        ws.current.send(JSON.stringify({
+          type: 'join',
+          username: pendingUsername.current
+        }));
+        setIsJoined(true);
+        pendingUsername.current = null;
+      }
     };
 
     ws.current.onmessage = (event) => {
@@ -67,18 +84,30 @@ function App() {
         }]);
       } else if (data.type === 'error') {
         // Error message
+        console.error('Server error:', data.message);
         alert(`Error: ${data.message}`);
+        setIsConnecting(false);
+        setIsJoined(false);
       }
     };
 
-    ws.current.onclose = () => {
-      console.log('❌ Disconnected from server');
+    ws.current.onclose = (event) => {
+      console.log('❌ Disconnected from server', event.code, event.reason);
       setIsConnected(false);
+      setIsConnecting(false);
+      if (isJoined) {
+        alert('Connection lost. Please rejoin the chat.');
+        setIsJoined(false);
+      }
     };
 
     ws.current.onerror = (error) => {
       console.error('WebSocket error:', error);
       setIsConnected(false);
+      setIsConnecting(false);
+      if (!isJoined) {
+        alert('Failed to connect to chat server. Please check your connection and try again.');
+      }
     };
   };
 
@@ -91,18 +120,12 @@ function App() {
       return;
     }
 
-    connectWebSocket();
-    
-    // Wait for connection, then send join message
-    setTimeout(() => {
-      if (ws.current && ws.current.readyState === WebSocket.OPEN) {
-        ws.current.send(JSON.stringify({
-          type: 'join',
-          username: username.trim()
-        }));
-        setIsJoined(true);
-      }
-    }, 100);
+    if (isConnecting) {
+      return; // Prevent multiple connection attempts
+    }
+
+    console.log('Attempting to join chat with username:', username.trim());
+    connectWebSocket(username.trim());
   };
 
   // Send message
@@ -128,8 +151,10 @@ function App() {
     }
     setIsJoined(false);
     setIsConnected(false);
+    setIsConnecting(false);
     setMessages([]);
     setUsername('');
+    pendingUsername.current = null;
   };
 
   // Format timestamp
@@ -151,11 +176,21 @@ function App() {
               onChange={(e) => setUsername(e.target.value)}
               className="username-input"
               maxLength={20}
+              disabled={isConnecting}
             />
-            <button type="submit" className="join-button">
-              Join Chat
+            <button 
+              type="submit" 
+              className="join-button"
+              disabled={isConnecting || !username.trim()}
+            >
+              {isConnecting ? 'Connecting...' : 'Join Chat'}
             </button>
           </form>
+          {isConnecting && (
+            <p style={{ color: '#666', marginTop: '10px' }}>
+              Connecting to chat server...
+            </p>
+          )}
         </div>
       </div>
     );
@@ -207,7 +242,7 @@ function App() {
         <form onSubmit={sendMessage} className="message-form">
           <input
             type="text"
-            placeholder="Type your message..."
+            placeholder={isConnected ? "Type your message..." : "Reconnecting..."}
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             className="message-input"
