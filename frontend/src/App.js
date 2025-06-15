@@ -1,6 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './App.css';
 
+// IMPORTANT: Replace with your actual Render backend URL
+const WEBSOCKET_URL = process.env.NODE_ENV === 'production' 
+  ? 'wss://real-time-chat-application-39bm.onrender.com' // Replace xxxx with your actual Render URL
+  : 'ws://localhost:5000';
+
 function App() {
   // State management
   const [username, setUsername] = useState('');
@@ -24,7 +29,7 @@ function App() {
 
   // Connect to WebSocket server
   const connectWebSocket = () => {
-    ws.current = new WebSocket('ws://localhost:5000');
+   ws.current = new WebSocket(WEBSOCKET_URL);
     
     ws.current.onopen = () => {
       console.log('✅ Connected to server');
