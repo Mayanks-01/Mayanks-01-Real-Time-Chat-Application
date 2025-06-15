@@ -6,7 +6,7 @@ const WEBSOCKET_URL = process.env.NODE_ENV === 'production'
   ? 'wss://real-time-chat-application-39bm.onrender.com' // Replace xxxx with your actual Render URL
   : 'ws://localhost:5000';
 
-console.log('WebSocket URL:', WEBSOCKET_URL);
+
 
 function App() {
   // State management
