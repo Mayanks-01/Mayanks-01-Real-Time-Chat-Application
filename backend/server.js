@@ -13,6 +13,10 @@ const server = http.createServer(app);
 const PORT = process.env.PORT || 5000;
 
 // CORS configuration for production
+
+console.log('NODE_ENV:', process.env.NODE_ENV);
+console.log('FRONTEND_URL:', process.env.FRONTEND_URL);
+
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
     ? [process.env.FRONTEND_URL || 'https://realchat-application.netlify.app/'] 
