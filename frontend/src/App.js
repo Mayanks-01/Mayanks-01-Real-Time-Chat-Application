@@ -39,13 +39,13 @@ function App() {
     ws.current = new WebSocket(WEBSOCKET_URL);
     
     ws.current.onopen = () => {
-      console.log('✅ Connected to server');
+      
       setIsConnected(true);
       setIsConnecting(false);
       
       // Now send the join message
       if (pendingUsername.current) {
-        console.log('Sending join message for:', pendingUsername.current);
+       
         ws.current.send(JSON.stringify({
           type: 'join',
           username: pendingUsername.current
@@ -57,7 +57,7 @@ function App() {
 
     ws.current.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      console.log('📨 Received:', data);
+      
       
       if (data.type === 'history') {
         // Load chat history
@@ -92,7 +92,7 @@ function App() {
     };
 
     ws.current.onclose = (event) => {
-      console.log('❌ Disconnected from server', event.code, event.reason);
+     
       setIsConnected(false);
       setIsConnecting(false);
       if (isJoined) {
@@ -124,7 +124,7 @@ function App() {
       return; // Prevent multiple connection attempts
     }
 
-    console.log('Attempting to join chat with username:', username.trim());
+   
     connectWebSocket(username.trim());
   };
 
