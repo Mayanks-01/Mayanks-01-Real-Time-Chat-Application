@@ -13,10 +13,6 @@ const server = http.createServer(app);
 const PORT = process.env.PORT || 5000;
 
 // CORS configuration for production
-
-console.log('NODE_ENV:', process.env.NODE_ENV);
-console.log('FRONTEND_URL:', process.env.FRONTEND_URL);
-
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
     ? [
@@ -39,7 +35,7 @@ app.use(express.json());
 
 // MongoDB Connection
 mongoose.connect(process.env.MONGODB_URI)
-    .then(() => console.log('Connected to MongoDB'))
+    .then()
     .catch(err => console.error(' MongoDB connection error:', err));
 
 // Basic route for testing
