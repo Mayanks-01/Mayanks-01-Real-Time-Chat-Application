@@ -52,3 +52,32 @@ Frontend :
 1. cd frontend
 2. npm install
 3. npm start
+
+
+How to Access the Deployed Application:
+
+1. Open the Chat Application
+Visit: https://realchat-application.netlify.app
+
+2. Join the Chat
+Enter your desired username (max 20 characters)
+Click "Join Chat" button
+Wait for "Connecting..." to complete
+You'll see the chat interface once connected
+
+3. Start Chatting
+Type your message in the input field at the bottom
+Press "Send" or hit Enter to send your message
+Messages appear in real-time for all connected users
+Previous chat history (last 50 messages) loads automatically
+
+4. Chat Features
+Real-time messaging - Messages appear instantly
+User notifications - See when users join/leave
+Message history - Previous conversations are saved
+Connection status - Green/Red indicator shows connection state
+Timestamps - All messages show time sent
+Multiple users - Support for concurrent users
+
+5. Leave Chat
+Click the "Leave" button in the top-right corner to disconnect
